@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.test.dao.UserMapper">
+
+	<select id="selectUserCount" parameterType="java.lang.String"
+		resultType="java.lang.Integer">
+		SELECT count(*) FROM user WHERE username = #{username} AND
+		password = #{password}
+	</select>
+
+	<resultMap type="user" id="userMap">
+		<id column="uid" property="uid" />
+		<result column="uname" property="uname" />
+		<result column="password" property="password" />
+
+		<collection property="roles" ofType="role"
+			select="selectRolesByUid" column="uid">
+			<id column="rid" property="rid" />
+			<result column="rname" property="rname" />
+		</collection>
+	</resultMap>
+
+	<resultMap type="role" id="roleMap">
+		<id column="rid" property="rid" />
+		<result column="rname" property="rname" />
+
+		<collection property="modules" ofType="module"
+			select="selectModulesByRid" column="rid">
+			<id column="mid" property="mid" />
+			<result column="mname" property="mname" />
+		</collection>
+	</resultMap>
+
+	<select id="selectUserByUserName" resultMap="userMap">
+		SELECT * FROM user
+		WHERE username = #{username}
+	</select>
+
+	<select id="selectRolesByUid" resultMap="roleMap">
+		SELECT r.rid,r.rname
+		FROM role r
+		LEFT JOIN user_role ur ON r.rid = ur.rid
+		WHERE ur.uid =
+		#{uid}
+	</select>
+
+	<select id="selectModulesByRid" resultType="module">
+		SELECT
+		m.mid,m.mname
+		FROM module_role mr
+		LEFT JOIN module m ON mr.mid = m.mid
+		WHERE mr.rid =
+		#{rid}
+	</select>
+
+
+</mapper>
